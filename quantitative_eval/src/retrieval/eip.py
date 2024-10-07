@@ -10,6 +10,7 @@ import torch
 import time
 import os
 import logging
+import csv
 
 torch.cuda.empty_cache()
 
@@ -103,7 +104,7 @@ def RAG_context_passages(rag_bm_txt):
     merged_df = merged_df.merge(topics_df, how='left', left_on='question_id', right_on='question_id')
 
     # Select only relevant columns for the output
-    merged_df = merged_df[['question_id', 'Qn', 'N_queries', 'score', 'tag', 'question', 'passage']]
+    merged_df = merged_df[['question_id', 'passage_id', 'question', 'passage']]
 
     # Write the result to the output file
     return merged_df
@@ -123,7 +124,7 @@ def generate_answer(question, context, pipeline, tokenizer):
         eos_token_id=tokenizer.eos_token_id,
         do_sample=False,
         # max_length=800,
-        max_new_tokens=100,
+        max_new_tokens=400,
         # top_k=2,
         # max_new_tokens=400,
         top_k=10,
@@ -134,59 +135,49 @@ def generate_answer(question, context, pipeline, tokenizer):
 
     return gen_answer
 
+
+def save_results_to_csv(results, csv_filename):
+    # Define the header for the CSV
+    header = ['question_id', 'passage_id', 'question', 'passage', 'falcon_generated_answer']
+
+    # Write the data to CSV
+    with open(csv_filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(header)  # Write the header
+        writer.writerows(results)  # Write the data
+
 RAG_context_passagess = RAG_context_passages(RAG_ANSWERS)
 
-llm_result = generate_answer('W01Q01', RAG_context_passagess, PIPELINE, TOKENIZER)
+# iterate over questions IDs in the RAG answers
+falcon_results = []
+unique_question_ids = RAG_context_passagess['question_id'].unique()
+
+for question_id in unique_question_ids:
+    llm_result = generate_answer(question_id, RAG_context_passagess, PIPELINE, TOKENIZER)
+    response_text = get_answer(llm_result[0]['generated_text'])
+    context = RAG_context_passagess[RAG_context_passagess['question_id'] == question_id]
+
+	# Concatenate all passage_id and passage columns into lists
+    passage_ids = context['passage_id'].tolist()
+    passages = context['passage'].tolist()
+
+    
+
+    falcon_results.append([
+        question_id,
+        passage_ids, 
+        context['question'].iloc[0], 
+        passages,
+        response_text  # Generated answer
+    ])
+save_results_to_csv(falcon_results, DATA_DIR + "/data/falcon_results.csv")
+
+#RAG_context_passagess = RAG_context_passages(RAG_ANSWERS)
+
+#llm_result = generate_answer('W43Q1', RAG_context_passagess, PIPELINE, TOKENIZER)
 #print(llm_result)
-response_text = get_answer(llm_result[0]['generated_text'])
-print(response_text)
+#response_text = get_answer(llm_result[0]['generated_text'])
+#print(response_text)
 
-# if __name__ == '__main__':
-    # logging.info("Starting the voice assistant...")
-    # # ************ Query Recording ************
-
-    # samplerate = 44100  # Standard for most microphones
-    # channels = 2  # Stereo
-
-    # audio_data = []
-
-    # Start the recording in a new thread
-    # stream = sd.InputStream(callback=callback, channels=channels, samplerate=samplerate)
-    # with stream:
-    #     # Wait for the user to press Enter
-    #     input()
-    #     EVENT.set()
-
-    # Concatenate the audio data and save it to a temporary WAV file
-    # audio = np.concatenate(audio_data)
-    # temp_filename = 'user_voice_query.wav'
-    # write(temp_filename, samplerate, audio)
-
-    # logging.info("User's voice query successfully recorded and store as user_voice_query.wav")
-
-    # ************ ASR ************
-    # model = whisper.load_model("base")
-    # result = model.transcribe(temp_filename, fp16=False)
-    # question = result["text"]
-
-    # logging.info(f"User's voice query trasncribed: {question}")
-
-    # logging.info(f"Initiating retrieval . . .")
-    # ************ Retrieval ************
-    # RAG_context_passages = get_context_passages(question)
-
-    # logging.info(f"Retrieval Completed")
-    # ************ Response Generation in Text ************
-    # logging.info(f"Initiating response generation using Falcon")
-    # llm_result = generate_answer(question, RAG_context_passages, PIPELINE, TOKENIZER)
-
-    # response_text = get_answer(llm_result[0]['generated_text'])
-
-    # logging.info(f"Response generation completed (text format): {response_text}")
-    # ************ Voice Response ************
-    # logging.info(f"Initiating voice response (audio format)")
-    # play_voice_response(response_text)
-
-    # logging.info(f"Conversation turn completed.")
 
 
