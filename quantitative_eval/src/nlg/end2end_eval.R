@@ -3,15 +3,15 @@ require(stringr)
 #Read data
 
 
-baseline  <- read.csv("../../target/summaries/walert_eval.csv")
-rag.bm25  <- read.csv("../../target/summaries/falcon_bm25_eval.csv")
-rag.dense <- read.csv("../../target/summaries/falcon_dense_eval.csv")
+baseline  <- read.csv("/Users/mkazemi/Library/CloudStorage/OneDrive-RMITUniversity/My Mac Folders/2024/RACE EIP/Damiano/walert/quantitative_eval/target/summaries/walert_eval.csv")
+rag.bm25  <- read.csv("/Users/mkazemi/Library/CloudStorage/OneDrive-RMITUniversity/My Mac Folders/2024/RACE EIP/Damiano/falcon_results_metrics.csv")
+rag.dense <- read.csv("/Users/mkazemi/Library/CloudStorage/OneDrive-RMITUniversity/My Mac Folders/2024/RACE EIP/Damiano/walert/quantitative_eval/target/summaries/falcon_dense_eval.csv")
 
 
 metrics <- c("bert_score_f1","bleu_score", "rouge_l_f1","rouge_1_f1","rouge_2_f1")
 
 
-sets <- c("top1", "top3", "top5")
+sets <- c("top3")
 
 for (metric in metrics) {
   
@@ -29,50 +29,50 @@ for (metric in metrics) {
 
 
 data <- baseline %>% select(question_id,approach,bert_score_f1,bleu_score,rouge_l_f1,rouge_1_f1,rouge_2_f1)
-
-temp <- rag.bm25 %>% select(question_id,bert_score_f1_top1,bleu_score_top1,rouge_l_f1_top1,rouge_1_f1_top1,rouge_2_f1_top1)
-temp$approach <- "rag.bm25.top1"
-names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
-data <- bind_rows(data,temp)
+# 
+# temp <- rag.bm25 %>% select(question_id,bert_score_f1_top1,bleu_score_top1,rouge_l_f1_top1,rouge_1_f1_top1,rouge_2_f1_top1)
+# temp$approach <- "rag.bm25.top1"
+# names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
+# data <- bind_rows(data,temp)
 
 
 temp <- rag.bm25 %>% select(question_id,bert_score_f1_top3,bleu_score_top3,rouge_l_f1_top3,rouge_1_f1_top3,rouge_2_f1_top3)
 temp$approach <- "rag.bm25.top3"
 names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
 data <- bind_rows(data,temp)
+# 
+# temp <- rag.bm25 %>% select(question_id,
+#                             bert_score_f1_top5,
+#                             bleu_score_top5,
+#                             rouge_l_f1_top5,
+#                             rouge_1_f1_top5,
+#                             rouge_2_f1_top5)
+# temp$approach <- "rag.bm25.top5"
+# names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
+# data <- bind_rows(data,temp)
 
-temp <- rag.bm25 %>% select(question_id,
-                            bert_score_f1_top5,
-                            bleu_score_top5,
-                            rouge_l_f1_top5,
-                            rouge_1_f1_top5,
-                            rouge_2_f1_top5)
-temp$approach <- "rag.bm25.top5"
-names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
-data <- bind_rows(data,temp)
 
 
-
-temp <- rag.dense %>% select(question_id,bert_score_f1_top1,bleu_score_top1,rouge_l_f1_top1,rouge_1_f1_top1,rouge_2_f1_top1)
-temp$approach <- "rag.dense.top1"
-names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
-data <- bind_rows(data,temp)
+# temp <- rag.dense %>% select(question_id,bert_score_f1_top1,bleu_score_top1,rouge_l_f1_top1,rouge_1_f1_top1,rouge_2_f1_top1)
+# temp$approach <- "rag.dense.top1"
+# names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
+# data <- bind_rows(data,temp)
 
 
 temp <- rag.dense %>% select(question_id,bert_score_f1_top3,bleu_score_top3,rouge_l_f1_top3,rouge_1_f1_top3,rouge_2_f1_top3)
 temp$approach <- "rag.dense.top3"
 names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
 data <- bind_rows(data,temp)
-
-temp <- rag.dense %>% select(question_id,
-                            bert_score_f1_top5,
-                            bleu_score_top5,
-                            rouge_l_f1_top5,
-                            rouge_1_f1_top5,
-                            rouge_2_f1_top5)
-temp$approach <- "rag.dense.top5"
-names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
-data <- bind_rows(data,temp)
+# 
+# temp <- rag.dense %>% select(question_id,
+#                             bert_score_f1_top5,
+#                             bleu_score_top5,
+#                             rouge_l_f1_top5,
+#                             rouge_1_f1_top5,
+#                             rouge_2_f1_top5)
+# temp$approach <- "rag.dense.top5"
+# names(temp) <- c("question_id", "bert_score_f1","bleu_score","rouge_l_f1", "rouge_1_f1"    ,"rouge_2_f1","approach")
+# data <- bind_rows(data,temp)
 
 
 

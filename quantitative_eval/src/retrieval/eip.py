@@ -11,6 +11,8 @@ import time
 import os
 import logging
 import csv
+from vllm import LLM, SamplingParams  # Import vLLM library for model handling
+
 
 torch.cuda.empty_cache()
 
@@ -30,7 +32,10 @@ def get_answer(text):
 
 
 def load_model(model_id):
-    model_id = "tiiuae/falcon-7b-instruct"
+#     model_id = "tiiuae/falcon-7b-instruct"
+#     model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+	model_id = "Qwen/Qwen2-beta-7B-Chat"
+		
 
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True)
@@ -46,7 +51,10 @@ def load_model(model_id):
     return pipeline, tokenizer
 
 
-model_name = "tiiuae/falcon-7b-instruct"
+# model_name = "tiiuae/falcon-7b-instruct"
+# model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+model_name = "Qwen/Qwen2-beta-7B-Chat"
+
 PIPELINE, TOKENIZER = load_model(model_name)
 
 DATA_DIR = "/home/ubuntu/EIP/Damiano/walert/quantitative_eval"
@@ -137,9 +145,11 @@ def generate_answer(question, context, pipeline, tokenizer):
 
 
 def save_results_to_csv(results, csv_filename):
+	
     # Define the header for the CSV
-    header = ['question_id', 'passage_id', 'question', 'passage', 'falcon_generated_answer']
-
+#     header = ['question_id', 'passage_id', 'question', 'passage', 'falcon_generated_answer']
+	header = ['question_id', 'passage_id', 'question', 'passage', 'qwen_generated_answer']
+	
     # Write the data to CSV
     with open(csv_filename, mode='w', newline='') as file:
         writer = csv.writer(file)
@@ -170,7 +180,8 @@ for question_id in unique_question_ids:
         passages,
         response_text  # Generated answer
     ])
-save_results_to_csv(falcon_results, DATA_DIR + "/data/falcon_results.csv")
+# save_results_to_csv(falcon_results, DATA_DIR + "/data/falcon_results.csv")
+save_results_to_csv(falcon_results, DATA_DIR + "/data/qwen_results.csv")
 
 #RAG_context_passagess = RAG_context_passages(RAG_ANSWERS)
 
