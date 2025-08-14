@@ -10,6 +10,7 @@ Note: This repository contains all utility code for 'Behind The Scenes' of Waler
 
 ## Requirements
 - python 3.9
+- If using Mac M2, you will need this hack to install `nmslib`: [https://github.com/nmslib/nmslib/issues/535](https://github.com/nmslib/nmslib/issues/535)
 - Install all packages in `requirements.txt` using:
 ```
 
